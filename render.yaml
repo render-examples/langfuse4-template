@@ -16,14 +16,14 @@ projects:
             # Render does not interpolate environment variables in Blueprint values.
             # Build the service URLs after the image entrypoint runs.
             dockerCommand: >-
-              /bin/sh -c 'export NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}";
+              /bin/sh -c export NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}";
               export CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123";
               export CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000";
               export LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
               export LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT="https://${MINIO_EXTERNAL_HOSTNAME}";
               export LANGFUSE_AUTO_CLICKHOUSE_MIGRATION_DISABLED=false;
               cd /app/packages/shared && sh ./clickhouse/scripts/up.sh && cd /app &&
-              exec node ./web/server.js --keepAliveTimeout 110000'
+              exec node ./web/server.js --keepAliveTimeout 110000
             envVars:
               - key: PORT
                 value: 3000
@@ -130,12 +130,12 @@ projects:
               url: docker.io/langfuse/langfuse-worker:4
             maxShutdownDelaySeconds: 300
             dockerCommand: >-
-              /bin/sh -c 'export NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}";
+              /bin/sh -c export NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}";
               export CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123";
               export CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000";
               export LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
               export LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
-              exec node worker/dist/index.js'
+              exec node worker/dist/index.js
             envVars:
               - key: PORT
                 value: 3030
