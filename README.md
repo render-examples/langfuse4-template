@@ -8,7 +8,7 @@ The Blueprint creates a new Render project named `langfuse-v4-test`. It adds an 
 
 - A `standard` Langfuse v4 web service
 - A `standard` Langfuse v4 background worker
-- A managed Postgres 17 `basic-1gb` database with 5 GB of storage
+- A managed PostgreSQL 18 `basic-1gb` database with 5 GB of storage
 - A managed `starter` Render Key Value instance
 - A private `pro` ClickHouse service with a 10 GB disk
 - A public `starter` MinIO service with a 10 GB disk
@@ -33,11 +33,11 @@ To use another region, add the same `region` value to every service and database
 
 ## Compatibility with Langfuse Docker Compose
 
-The Blueprint follows the [Langfuse v4 Docker Compose configuration](https://github.com/langfuse/langfuse/blob/main/docker-compose.yml). It uses the same Langfuse v4 and ClickHouse 25.12 image versions, Postgres 17, service ports, credentials, buckets, and object storage paths.
+The Blueprint follows the [Langfuse v4 Docker Compose configuration](https://github.com/langfuse/langfuse/blob/main/docker-compose.yml). It uses the same Langfuse v4 and ClickHouse 25.12 image versions, service ports, credentials, buckets, and object storage paths. It uses PostgreSQL 18 instead of the upstream default PostgreSQL 17.
 
 The Blueprint has these Render-specific changes:
 
-- Managed Render Postgres and Key Value replace the Postgres and Redis containers.
+- Managed Render PostgreSQL 18 and Key Value replace the PostgreSQL and Redis containers.
 - The MinIO Docker command combines the upstream Compose entrypoint and command. It creates the `langfuse` bucket directory before it starts MinIO.
 - The Langfuse startup commands convert the generated encryption key to the required format, then run the image entrypoints. The web startup command also URL-encodes the generated ClickHouse password during migrations.
 - `CLICKHOUSE_DB` is not set. Setting it starts an image initialization path that cannot stop its temporary ClickHouse process on Render.

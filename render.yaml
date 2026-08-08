@@ -287,7 +287,7 @@ projects:
         databases:
           - name: langfuse-v4-test-postgres
             plan: basic-1gb
-            postgresMajorVersion: "17"
+            postgresMajorVersion: "18"
             databaseName: langfuse
             user: langfuse
             diskSizeGB: 5
