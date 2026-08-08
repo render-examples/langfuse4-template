@@ -25,10 +25,10 @@ projects:
               export LANGFUSE_AUTO_CLICKHOUSE_MIGRATION_DISABLED=false;
               export CLICKHOUSE_PASSWORD_RAW="${CLICKHOUSE_PASSWORD}";
               export CLICKHOUSE_PASSWORD="$(node -e 'process.stdout.write(encodeURIComponent(process.env.CLICKHOUSE_PASSWORD))')";
-              cd /app/packages/shared && sh ./clickhouse/scripts/up.sh && cd /app &&
-              export CLICKHOUSE_PASSWORD="${CLICKHOUSE_PASSWORD_RAW}" &&
-              unset CLICKHOUSE_PASSWORD_RAW &&
-              exec node ./web/server.js --keepAliveTimeout 110000
+              exec dumb-init -- ./web/entrypoint.sh /bin/sh -c
+              'export CLICKHOUSE_PASSWORD="${CLICKHOUSE_PASSWORD_RAW}";
+              unset CLICKHOUSE_PASSWORD_RAW;
+              exec node ./web/server.js --keepAliveTimeout 110000'
             envVars:
               - key: PORT
                 value: 3000
@@ -141,7 +141,7 @@ projects:
               export CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000";
               export LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
               export LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
-              exec node worker/dist/index.js
+              exec dumb-init -- ./worker/entrypoint.sh node worker/dist/index.js
             envVars:
               - key: PORT
                 value: 3030

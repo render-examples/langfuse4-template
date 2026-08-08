@@ -39,7 +39,7 @@ The Blueprint has these Render-specific changes:
 
 - Managed Render Postgres and Key Value replace the Postgres and Redis containers.
 - The MinIO Docker command combines the upstream Compose entrypoint and command. It creates the `langfuse` bucket directory before it starts MinIO.
-- The Langfuse startup commands convert the generated encryption key to the required format. The web startup command also URL-encodes the generated ClickHouse password during migrations.
+- The Langfuse startup commands convert the generated encryption key to the required format, then run the image entrypoints. The web startup command also URL-encodes the generated ClickHouse password during migrations.
 - `CLICKHOUSE_DB` is not set. Setting it starts an image initialization path that cannot stop its temporary ClickHouse process on Render.
 - Render service references and private networking replace Docker Compose service discovery and port bindings.
 
