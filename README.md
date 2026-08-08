@@ -21,10 +21,9 @@ The environment blocks private network traffic from other Render environments. M
 2. Select **New > Blueprint**.
 3. Select the `renderinc/langfuse-blueprint` repository.
 4. Review the instance types and disk sizes.
-5. Enter `ENCRYPTION_KEY` as 64 hexadecimal characters. Generate a value with `openssl rand -hex 32`.
-6. Apply the Blueprint.
+5. Apply the Blueprint.
 
-Render generates `SALT`, `NEXTAUTH_SECRET`, `CLICKHOUSE_PASSWORD`, and `MINIO_ROOT_PASSWORD` during the first Blueprint sync.
+Render generates `SALT`, `ENCRYPTION_KEY`, `NEXTAUTH_SECRET`, `CLICKHOUSE_PASSWORD`, and `MINIO_ROOT_PASSWORD` during the first Blueprint sync. The Langfuse startup commands convert `ENCRYPTION_KEY` to the required 64-character hexadecimal format.
 
 ## Region
 
@@ -40,6 +39,7 @@ The Blueprint has these Render-specific changes:
 
 - Managed Render Postgres and Key Value replace the Postgres and Redis containers.
 - The MinIO Docker command combines the upstream Compose entrypoint and command. It creates the `langfuse` bucket directory before it starts MinIO.
+- The Langfuse startup commands convert the generated encryption key to the required format. The web startup command also URL-encodes the generated ClickHouse password during migrations.
 - `CLICKHOUSE_DB` is not set. Setting it starts an image initialization path that cannot stop its temporary ClickHouse process on Render.
 - Render service references and private networking replace Docker Compose service discovery and port bindings.
 

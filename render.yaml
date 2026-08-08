@@ -17,12 +17,17 @@ projects:
             # Build the service URLs after the image entrypoint runs.
             dockerCommand: >-
               /bin/sh -c export NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}";
+              export ENCRYPTION_KEY="$(node -e 'process.stdout.write(require("node:crypto").createHash("sha256").update(process.env.ENCRYPTION_KEY).digest("hex"))')";
               export CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123";
               export CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000";
               export LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
               export LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT="https://${MINIO_EXTERNAL_HOSTNAME}";
               export LANGFUSE_AUTO_CLICKHOUSE_MIGRATION_DISABLED=false;
+              export CLICKHOUSE_PASSWORD_RAW="${CLICKHOUSE_PASSWORD}";
+              export CLICKHOUSE_PASSWORD="$(node -e 'process.stdout.write(encodeURIComponent(process.env.CLICKHOUSE_PASSWORD))')";
               cd /app/packages/shared && sh ./clickhouse/scripts/up.sh && cd /app &&
+              export CLICKHOUSE_PASSWORD="${CLICKHOUSE_PASSWORD_RAW}" &&
+              unset CLICKHOUSE_PASSWORD_RAW &&
               exec node ./web/server.js --keepAliveTimeout 110000
             envVars:
               - key: PORT
@@ -114,7 +119,7 @@ projects:
               - key: SALT
                 generateValue: true
               - key: ENCRYPTION_KEY
-                sync: false # Enter 64 hexadecimal characters. Run: openssl rand -hex 32
+                generateValue: true
               - key: NEXTAUTH_SECRET
                 generateValue: true
               - key: TELEMETRY_ENABLED
@@ -131,6 +136,7 @@ projects:
             maxShutdownDelaySeconds: 300
             dockerCommand: >-
               /bin/sh -c export NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}";
+              export ENCRYPTION_KEY="$(node -e 'process.stdout.write(require("node:crypto").createHash("sha256").update(process.env.ENCRYPTION_KEY).digest("hex"))')";
               export CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123";
               export CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000";
               export LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
