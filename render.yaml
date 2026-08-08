@@ -14,9 +14,9 @@ projects:
             healthCheckPath: /api/public/health
             maxShutdownDelaySeconds: 120
             # Render does not interpolate environment variables in Blueprint values.
-            # Build the service URLs after the image entrypoint runs.
+            # Build the service URLs before calling the image entrypoint.
             dockerCommand: >-
-              /bin/sh -c export NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}";
+              /bin/sh -c export NEXTAUTH_URL="https://${RENDER_EXTERNAL_HOSTNAME}";
               export ENCRYPTION_KEY="$(node -e 'process.stdout.write(require("node:crypto").createHash("sha256").update(process.env.ENCRYPTION_KEY).digest("hex"))')";
               export CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123";
               export CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000";
@@ -43,11 +43,6 @@ projects:
                   name: langfuse-v4-test-key-value
                   type: keyvalue
                   property: connectionString
-              - key: LANGFUSE_EXTERNAL_HOSTNAME
-                fromService:
-                  name: langfuse-v4-test
-                  type: web
-                  envVarKey: RENDER_EXTERNAL_HOSTNAME
               - key: CLICKHOUSE_HOST
                 fromService:
                   name: langfuse-v4-test-clickhouse
