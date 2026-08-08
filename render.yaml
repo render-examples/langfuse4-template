@@ -238,8 +238,6 @@ projects:
                 value: 8123
               - key: TZ
                 value: UTC
-              - key: CLICKHOUSE_DB
-                value: default
               - key: CLICKHOUSE_USER
                 value: clickhouse
               - key: CLICKHOUSE_PASSWORD
