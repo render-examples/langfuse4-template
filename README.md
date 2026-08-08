@@ -21,13 +21,10 @@ The environment blocks private network traffic from other Render environments. M
 2. Select **New > Blueprint**.
 3. Select the `renderinc/langfuse-blueprint` repository.
 4. Review the instance types and disk sizes.
-5. Enter the requested secret values:
-   - `ENCRYPTION_KEY`: Enter 64 hexadecimal characters. Generate a value with `openssl rand -hex 32`.
-   - `CLICKHOUSE_PASSWORD`: Enter a long alphanumeric value.
-   - `MINIO_ROOT_PASSWORD`: Enter at least 8 characters.
+5. Enter `ENCRYPTION_KEY` as 64 hexadecimal characters. Generate a value with `openssl rand -hex 32`.
 6. Apply the Blueprint.
 
-Render generates `SALT` and `NEXTAUTH_SECRET` during the first Blueprint sync.
+Render generates `SALT`, `NEXTAUTH_SECRET`, `CLICKHOUSE_PASSWORD`, and `MINIO_ROOT_PASSWORD` during the first Blueprint sync.
 
 ## Region
 

@@ -241,7 +241,7 @@ projects:
               - key: CLICKHOUSE_USER
                 value: clickhouse
               - key: CLICKHOUSE_PASSWORD
-                sync: false # Use a long alphanumeric value.
+                generateValue: true
             disk:
               name: clickhouse-data
               mountPath: /var/lib/clickhouse
@@ -265,7 +265,7 @@ projects:
               - key: MINIO_ROOT_USER
                 value: minio
               - key: MINIO_ROOT_PASSWORD
-                sync: false # Enter at least 8 characters.
+                generateValue: true
             disk:
               name: minio-data
               mountPath: /data
