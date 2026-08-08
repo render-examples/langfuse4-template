@@ -1,17 +1,17 @@
-# Langfuse v4 on Render
+# Langfuse v4 test profile on Render
 
-This repository contains a Render Blueprint for a self-hosted Langfuse v4 deployment.
+This repository contains a Render Blueprint for a small self-hosted Langfuse v4 test deployment. Do not use this profile for production workloads.
 
 ## What the Blueprint creates
 
-The Blueprint creates a new Render project named `langfuse-v4`. It adds a protected `production` environment with these resources:
+The Blueprint creates a new Render project named `langfuse-v4-test`. It adds an unprotected `test` environment with these resources:
 
-- A Langfuse v4 web service
-- A Langfuse v4 background worker
-- A managed Render Postgres database
-- A managed Render Key Value instance
-- A private ClickHouse service with a persistent disk
-- A MinIO service with a persistent disk
+- A `standard` Langfuse v4 web service
+- A `standard` Langfuse v4 background worker
+- A managed Postgres 17 `basic-1gb` database with 5 GB of storage
+- A managed `starter` Render Key Value instance
+- A private `pro` ClickHouse service with a 10 GB disk
+- A public `starter` MinIO service with a 10 GB disk
 
 The environment blocks private network traffic from other Render environments. MinIO has a public URL because Langfuse sends presigned media URLs to browsers and SDK clients. MinIO still requires signed requests.
 
@@ -35,9 +35,20 @@ The Blueprint does not set a region. Render uses its default region for each new
 
 To use another region, add the same `region` value to every service and database before the first Blueprint sync. Render cannot move an existing resource to another region.
 
+## Compatibility with Langfuse Docker Compose
+
+The Blueprint follows the [Langfuse v4 Docker Compose configuration](https://github.com/langfuse/langfuse/blob/main/docker-compose.yml). It uses the same Langfuse v4 and ClickHouse 25.12 image versions, Postgres 17, service ports, credentials, buckets, and object storage paths.
+
+The Blueprint has these Render-specific changes:
+
+- Managed Render Postgres and Key Value replace the Postgres and Redis containers.
+- A pinned official MinIO image replaces the Chainguard image. The Chainguard image runs as a user that cannot write to a new Render disk.
+- `CLICKHOUSE_DB` is not set. Setting it starts an image initialization path that cannot stop its temporary ClickHouse process on Render.
+- Render service references and private networking replace Docker Compose service discovery and port bindings.
+
 ## Capacity and cost
 
-The Blueprint uses production-oriented instance types and two 100 GB persistent disks. Review the resource cost before you apply it.
+This profile uses small instance types and disks for functional tests. The web and worker each have a 1.5 GB Node.js heap limit. Review the resource cost before you apply the Blueprint.
 
 ClickHouse and MinIO use one instance each. Render services with a persistent disk cannot scale to more than one instance. This Blueprint does not provide high availability for these two services.
 
