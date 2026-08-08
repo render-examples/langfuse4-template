@@ -42,7 +42,7 @@ The Blueprint follows the [Langfuse v4 Docker Compose configuration](https://git
 The Blueprint has these Render-specific changes:
 
 - Managed Render Postgres and Key Value replace the Postgres and Redis containers.
-- A pinned official MinIO image replaces the Chainguard image. The Chainguard image runs as a user that cannot write to a new Render disk.
+- The MinIO Docker command combines the upstream Compose entrypoint and command. It creates the `langfuse` bucket directory before it starts MinIO.
 - `CLICKHOUSE_DB` is not set. Setting it starts an image initialization path that cannot stop its temporary ClickHouse process on Render.
 - Render service references and private networking replace Docker Compose service discovery and port bindings.
 
