@@ -1,0 +1,294 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+
+projects:
+  - name: langfuse-v4
+    environments:
+      - name: production
+        services:
+          - type: web
+            name: langfuse-v4
+            runtime: image
+            plan: pro
+            image:
+              url: docker.io/langfuse/langfuse:4
+            healthCheckPath: /api/public/health
+            maxShutdownDelaySeconds: 120
+            # Render does not interpolate environment variables in Blueprint values.
+            # Build the service URLs after the image entrypoint runs.
+            dockerCommand: >-
+              /bin/sh -c 'export NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}";
+              export CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123";
+              export CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000";
+              export LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
+              export LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT="https://${MINIO_EXTERNAL_HOSTNAME}";
+              export LANGFUSE_AUTO_CLICKHOUSE_MIGRATION_DISABLED=false;
+              cd /app/packages/shared && sh ./clickhouse/scripts/up.sh && cd /app &&
+              exec node ./web/server.js --keepAliveTimeout 110000'
+            envVars:
+              - key: PORT
+                value: 3000
+              - key: NODE_OPTIONS
+                value: --max-old-space-size=3584
+              - key: DATABASE_URL
+                fromDatabase:
+                  name: langfuse-v4-postgres
+                  property: connectionString
+              - key: REDIS_CONNECTION_STRING
+                fromService:
+                  name: langfuse-v4-key-value
+                  type: keyvalue
+                  property: connectionString
+              - key: LANGFUSE_EXTERNAL_HOSTNAME
+                fromService:
+                  name: langfuse-v4
+                  type: web
+                  envVarKey: RENDER_EXTERNAL_HOSTNAME
+              - key: CLICKHOUSE_HOST
+                fromService:
+                  name: langfuse-v4-clickhouse
+                  type: pserv
+                  property: host
+              - key: CLICKHOUSE_URL
+                value: http://placeholder.invalid:8123
+              - key: CLICKHOUSE_MIGRATION_URL
+                value: clickhouse://placeholder.invalid:9000
+              - key: LANGFUSE_AUTO_CLICKHOUSE_MIGRATION_DISABLED
+                value: true
+              - key: CLICKHOUSE_USER
+                value: clickhouse
+              - key: CLICKHOUSE_PASSWORD
+                fromService:
+                  name: langfuse-v4-clickhouse
+                  type: pserv
+                  envVarKey: CLICKHOUSE_PASSWORD
+              - key: CLICKHOUSE_CLUSTER_ENABLED
+                value: false
+              - key: MINIO_HOST
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  property: host
+              - key: MINIO_EXTERNAL_HOSTNAME
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  envVarKey: RENDER_EXTERNAL_HOSTNAME
+              - key: LANGFUSE_S3_EVENT_UPLOAD_BUCKET
+                value: langfuse
+              - key: LANGFUSE_S3_EVENT_UPLOAD_REGION
+                value: auto
+              - key: LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  envVarKey: MINIO_ROOT_USER
+              - key: LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  envVarKey: MINIO_ROOT_PASSWORD
+              - key: LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE
+                value: true
+              - key: LANGFUSE_S3_EVENT_UPLOAD_PREFIX
+                value: events/
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_BUCKET
+                value: langfuse
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_REGION
+                value: auto
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  envVarKey: MINIO_ROOT_USER
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  envVarKey: MINIO_ROOT_PASSWORD
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE
+                value: true
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_PREFIX
+                value: media/
+              - key: LANGFUSE_S3_BATCH_EXPORT_ENABLED
+                value: false
+              - key: SALT
+                generateValue: true
+              - key: ENCRYPTION_KEY
+                sync: false # Enter 64 hexadecimal characters. Run: openssl rand -hex 32
+              - key: NEXTAUTH_SECRET
+                generateValue: true
+              - key: TELEMETRY_ENABLED
+                value: true
+              - key: LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES
+                value: false
+
+          - type: worker
+            name: langfuse-v4-worker
+            runtime: image
+            plan: pro
+            image:
+              url: docker.io/langfuse/langfuse-worker:4
+            maxShutdownDelaySeconds: 300
+            dockerCommand: >-
+              /bin/sh -c 'export NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}";
+              export CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123";
+              export CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000";
+              export LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
+              export LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
+              exec node worker/dist/index.js'
+            envVars:
+              - key: PORT
+                value: 3030
+              - key: NODE_OPTIONS
+                value: --max-old-space-size=3584
+              - key: DATABASE_URL
+                fromDatabase:
+                  name: langfuse-v4-postgres
+                  property: connectionString
+              - key: REDIS_CONNECTION_STRING
+                fromService:
+                  name: langfuse-v4-key-value
+                  type: keyvalue
+                  property: connectionString
+              - key: LANGFUSE_EXTERNAL_HOSTNAME
+                fromService:
+                  name: langfuse-v4
+                  type: web
+                  envVarKey: RENDER_EXTERNAL_HOSTNAME
+              - key: CLICKHOUSE_HOST
+                fromService:
+                  name: langfuse-v4-clickhouse
+                  type: pserv
+                  property: host
+              - key: CLICKHOUSE_USER
+                value: clickhouse
+              - key: CLICKHOUSE_PASSWORD
+                fromService:
+                  name: langfuse-v4-clickhouse
+                  type: pserv
+                  envVarKey: CLICKHOUSE_PASSWORD
+              - key: CLICKHOUSE_CLUSTER_ENABLED
+                value: false
+              - key: MINIO_HOST
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  property: host
+              - key: LANGFUSE_S3_EVENT_UPLOAD_BUCKET
+                value: langfuse
+              - key: LANGFUSE_S3_EVENT_UPLOAD_REGION
+                value: auto
+              - key: LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  envVarKey: MINIO_ROOT_USER
+              - key: LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  envVarKey: MINIO_ROOT_PASSWORD
+              - key: LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE
+                value: true
+              - key: LANGFUSE_S3_EVENT_UPLOAD_PREFIX
+                value: events/
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_BUCKET
+                value: langfuse
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_REGION
+                value: auto
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  envVarKey: MINIO_ROOT_USER
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY
+                fromService:
+                  name: langfuse-v4-minio
+                  type: web
+                  envVarKey: MINIO_ROOT_PASSWORD
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE
+                value: true
+              - key: LANGFUSE_S3_MEDIA_UPLOAD_PREFIX
+                value: media/
+              - key: LANGFUSE_S3_BATCH_EXPORT_ENABLED
+                value: false
+              - key: SALT
+                fromService:
+                  name: langfuse-v4
+                  type: web
+                  envVarKey: SALT
+              - key: ENCRYPTION_KEY
+                fromService:
+                  name: langfuse-v4
+                  type: web
+                  envVarKey: ENCRYPTION_KEY
+              - key: TELEMETRY_ENABLED
+                value: true
+              - key: LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES
+                value: false
+
+          - type: pserv
+            name: langfuse-v4-clickhouse
+            runtime: image
+            plan: "pro plus"
+            image:
+              url: docker.io/clickhouse/clickhouse-server:25.12
+            envVars:
+              - key: PORT
+                value: 8123
+              - key: TZ
+                value: UTC
+              - key: CLICKHOUSE_DB
+                value: default
+              - key: CLICKHOUSE_USER
+                value: clickhouse
+              - key: CLICKHOUSE_PASSWORD
+                sync: false # Use a long alphanumeric value.
+            disk:
+              name: clickhouse-data
+              mountPath: /var/lib/clickhouse
+              sizeGB: 100
+
+          # This service must be public because Langfuse returns presigned media URLs
+          # to browsers and SDK clients. MinIO still requires signed requests.
+          - type: web
+            name: langfuse-v4-minio
+            runtime: image
+            plan: standard
+            image:
+              url: cgr.dev/chainguard/minio:latest
+            dockerCommand: server --address :9000 --console-address :9001 /data
+            healthCheckPath: /minio/health/live
+            initialDeployHook: mkdir -p /data/langfuse
+            envVars:
+              - key: PORT
+                value: 9000
+              - key: MINIO_ROOT_USER
+                value: minio
+              - key: MINIO_ROOT_PASSWORD
+                sync: false # Enter at least 8 characters.
+            disk:
+              name: minio-data
+              mountPath: /data
+              sizeGB: 100
+
+          - type: keyvalue
+            name: langfuse-v4-key-value
+            plan: pro
+            ipAllowList: []
+            maxmemoryPolicy: noeviction
+            persistenceMode: journal-snapshot
+
+        databases:
+          - name: langfuse-v4-postgres
+            plan: pro-4gb
+            databaseName: langfuse
+            user: langfuse
+            diskSizeGB: 100
+            storageAutoscalingEnabled: true
+            ipAllowList: []
+
+        networking:
+          isolation: enabled
+        permissions:
+          protection: enabled
