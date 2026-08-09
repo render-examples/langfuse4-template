@@ -2,7 +2,7 @@
 
 This repository contains a Render Blueprint for a self-hosted Langfuse v4 deployment. It creates separate Render resources for the Langfuse web service, worker, and data stores. This architecture can support production workloads when you select plans, storage, scaling, backups, and recovery controls that match your workload.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/renderinc/langfuse-blueprint)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/render-examples/langfuse4-template)
 
 ## What the Blueprint creates
 
@@ -21,7 +21,7 @@ The environment blocks private network traffic from other Render environments. M
 
 1. Open the [Render Dashboard](https://dashboard.render.com/).
 2. Select **New > Blueprint**.
-3. Select the `renderinc/langfuse-blueprint` repository.
+3. Select the `render-examples/langfuse4-template` repository.
 4. Review the instance types and disk sizes.
 5. Apply the Blueprint.
 
