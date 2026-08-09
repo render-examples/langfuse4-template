@@ -1,10 +1,10 @@
-# Langfuse v4 test profile on Render
+# Langfuse v4 profile on Render
 
-This repository contains a Render Blueprint for a small self-hosted Langfuse v4 test deployment. Do not use this profile for production workloads.
+This repository contains a Render Blueprint for a small self-hosted Langfuse v4 deployment. Do not use this profile for production workloads.
 
 ## What the Blueprint creates
 
-The Blueprint creates a new Render project named `langfuse-v4-test`. It adds an unprotected `test` environment with these resources:
+The Blueprint creates a new Render project named `langfuse`. It adds an unprotected `production` environment with these resources:
 
 - A `standard` Langfuse v4 web service
 - A `standard` Langfuse v4 background worker
