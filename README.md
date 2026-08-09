@@ -2,6 +2,8 @@
 
 This repository contains a Render Blueprint for a small self-hosted Langfuse v4 deployment. Do not use this profile for production workloads.
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/renderinc/langfuse-blueprint)
+
 ## What the Blueprint creates
 
 The Blueprint creates a new Render project named `langfuse-4`. It adds an unprotected `production` environment with these resources:
