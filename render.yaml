@@ -1,12 +1,12 @@
 # yaml-language-server: $schema=https://render.com/schema/render.yaml.json
 
 projects:
-  - name: langfuse-v4-test
+  - name: langfuse
     environments:
-      - name: test
+      - name: production
         services:
           - type: web
-            name: langfuse-v4-test
+            name: langfuse
             runtime: image
             plan: standard
             image:
@@ -34,35 +34,35 @@ projects:
                 value: --max-old-space-size=1536
               - key: DATABASE_URL
                 fromDatabase:
-                  name: langfuse-v4-test-postgres
+                  name: langfuse-postgres
                   property: connectionString
               - key: REDIS_CONNECTION_STRING
                 fromService:
-                  name: langfuse-v4-test-key-value
+                  name: langfuse-key-value
                   type: keyvalue
                   property: connectionString
               - key: CLICKHOUSE_HOST
                 fromService:
-                  name: langfuse-v4-test-clickhouse
+                  name: langfuse-clickhouse
                   type: pserv
                   property: host
               - key: CLICKHOUSE_USER
                 value: clickhouse
               - key: CLICKHOUSE_PASSWORD
                 fromService:
-                  name: langfuse-v4-test-clickhouse
+                  name: langfuse-clickhouse
                   type: pserv
                   envVarKey: CLICKHOUSE_PASSWORD
               - key: CLICKHOUSE_CLUSTER_ENABLED
                 value: false
               - key: MINIO_HOST
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   property: host
               - key: MINIO_EXTERNAL_HOSTNAME
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   envVarKey: RENDER_EXTERNAL_HOSTNAME
               - key: LANGFUSE_S3_EVENT_UPLOAD_BUCKET
@@ -71,12 +71,12 @@ projects:
                 value: auto
               - key: LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   envVarKey: MINIO_ROOT_USER
               - key: LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   envVarKey: MINIO_ROOT_PASSWORD
               - key: LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE
@@ -89,12 +89,12 @@ projects:
                 value: auto
               - key: LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   envVarKey: MINIO_ROOT_USER
               - key: LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   envVarKey: MINIO_ROOT_PASSWORD
               - key: LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE
@@ -115,7 +115,7 @@ projects:
                 value: false
 
           - type: worker
-            name: langfuse-v4-test-worker
+            name: langfuse-worker
             runtime: image
             plan: standard
             image:
@@ -137,35 +137,35 @@ projects:
                 value: --max-old-space-size=1536
               - key: DATABASE_URL
                 fromDatabase:
-                  name: langfuse-v4-test-postgres
+                  name: langfuse-postgres
                   property: connectionString
               - key: REDIS_CONNECTION_STRING
                 fromService:
-                  name: langfuse-v4-test-key-value
+                  name: langfuse-key-value
                   type: keyvalue
                   property: connectionString
               - key: LANGFUSE_EXTERNAL_HOSTNAME
                 fromService:
-                  name: langfuse-v4-test
+                  name: langfuse
                   type: web
                   envVarKey: RENDER_EXTERNAL_HOSTNAME
               - key: CLICKHOUSE_HOST
                 fromService:
-                  name: langfuse-v4-test-clickhouse
+                  name: langfuse-clickhouse
                   type: pserv
                   property: host
               - key: CLICKHOUSE_USER
                 value: clickhouse
               - key: CLICKHOUSE_PASSWORD
                 fromService:
-                  name: langfuse-v4-test-clickhouse
+                  name: langfuse-clickhouse
                   type: pserv
                   envVarKey: CLICKHOUSE_PASSWORD
               - key: CLICKHOUSE_CLUSTER_ENABLED
                 value: false
               - key: MINIO_HOST
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   property: host
               - key: LANGFUSE_S3_EVENT_UPLOAD_BUCKET
@@ -174,12 +174,12 @@ projects:
                 value: auto
               - key: LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   envVarKey: MINIO_ROOT_USER
               - key: LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   envVarKey: MINIO_ROOT_PASSWORD
               - key: LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE
@@ -192,12 +192,12 @@ projects:
                 value: auto
               - key: LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   envVarKey: MINIO_ROOT_USER
               - key: LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY
                 fromService:
-                  name: langfuse-v4-test-minio
+                  name: langfuse-minio
                   type: web
                   envVarKey: MINIO_ROOT_PASSWORD
               - key: LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE
@@ -208,12 +208,12 @@ projects:
                 value: false
               - key: SALT
                 fromService:
-                  name: langfuse-v4-test
+                  name: langfuse
                   type: web
                   envVarKey: SALT
               - key: ENCRYPTION_KEY
                 fromService:
-                  name: langfuse-v4-test
+                  name: langfuse
                   type: web
                   envVarKey: ENCRYPTION_KEY
               - key: TELEMETRY_ENABLED
@@ -222,7 +222,7 @@ projects:
                 value: false
 
           - type: pserv
-            name: langfuse-v4-test-clickhouse
+            name: langfuse-clickhouse
             runtime: image
             plan: pro
             image:
@@ -244,7 +244,7 @@ projects:
           # This service must be public because Langfuse returns presigned media URLs
           # to browsers and SDK clients. MinIO still requires signed requests.
           - type: web
-            name: langfuse-v4-test-minio
+            name: langfuse-minio
             runtime: image
             plan: starter
             image:
@@ -266,14 +266,14 @@ projects:
               sizeGB: 10
 
           - type: keyvalue
-            name: langfuse-v4-test-key-value
+            name: langfuse-key-value
             plan: starter
             ipAllowList: []
             maxmemoryPolicy: noeviction
             persistenceMode: journal-snapshot
 
         databases:
-          - name: langfuse-v4-test-postgres
+          - name: langfuse-postgres
             plan: basic-1gb
             postgresMajorVersion: "18"
             databaseName: langfuse
