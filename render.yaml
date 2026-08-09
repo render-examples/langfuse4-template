@@ -16,19 +16,17 @@ projects:
             # Render does not interpolate environment variables in Blueprint values.
             # Build the service URLs before calling the image entrypoint.
             dockerCommand: >-
-              /bin/sh -c export NEXTAUTH_URL="https://${RENDER_EXTERNAL_HOSTNAME}";
-              export ENCRYPTION_KEY="$(node -e 'process.stdout.write(require("node:crypto").createHash("sha256").update(process.env.ENCRYPTION_KEY).digest("hex"))')";
-              export CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123";
-              export CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000";
-              export LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
-              export LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT="https://${MINIO_EXTERNAL_HOSTNAME}";
-              export LANGFUSE_AUTO_CLICKHOUSE_MIGRATION_DISABLED=false;
-              export CLICKHOUSE_PASSWORD_RAW="${CLICKHOUSE_PASSWORD}";
-              export CLICKHOUSE_PASSWORD="$(node -e 'process.stdout.write(encodeURIComponent(process.env.CLICKHOUSE_PASSWORD))')";
+              /bin/sh -c export
+              NEXTAUTH_URL="https://${RENDER_EXTERNAL_HOSTNAME}"
+              ENCRYPTION_KEY="$(printf %s "${ENCRYPTION_KEY}" | sha256sum | cut -c1-64)"
+              CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123"
+              CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000"
+              LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000"
+              LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT="https://${MINIO_EXTERNAL_HOSTNAME}"
+              CLICKHOUSE_PASSWORD_RAW="${CLICKHOUSE_PASSWORD}"
+              CLICKHOUSE_PASSWORD="$(node -p 'encodeURIComponent(process.env.CLICKHOUSE_PASSWORD)')";
               exec dumb-init -- ./web/entrypoint.sh /bin/sh -c
-              'export CLICKHOUSE_PASSWORD="${CLICKHOUSE_PASSWORD_RAW}";
-              unset CLICKHOUSE_PASSWORD_RAW;
-              exec node ./web/server.js --keepAliveTimeout 110000'
+              'CLICKHOUSE_PASSWORD="${CLICKHOUSE_PASSWORD_RAW}" exec node ./web/server.js --keepAliveTimeout 110000'
             envVars:
               - key: PORT
                 value: 3000
@@ -48,12 +46,6 @@ projects:
                   name: langfuse-v4-test-clickhouse
                   type: pserv
                   property: host
-              - key: CLICKHOUSE_URL
-                value: http://placeholder.invalid:8123
-              - key: CLICKHOUSE_MIGRATION_URL
-                value: clickhouse://placeholder.invalid:9000
-              - key: LANGFUSE_AUTO_CLICKHOUSE_MIGRATION_DISABLED
-                value: true
               - key: CLICKHOUSE_USER
                 value: clickhouse
               - key: CLICKHOUSE_PASSWORD
@@ -130,12 +122,13 @@ projects:
               url: docker.io/langfuse/langfuse-worker:4
             maxShutdownDelaySeconds: 300
             dockerCommand: >-
-              /bin/sh -c export NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}";
-              export ENCRYPTION_KEY="$(node -e 'process.stdout.write(require("node:crypto").createHash("sha256").update(process.env.ENCRYPTION_KEY).digest("hex"))')";
-              export CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123";
-              export CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000";
-              export LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
-              export LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
+              /bin/sh -c export
+              NEXTAUTH_URL="https://${LANGFUSE_EXTERNAL_HOSTNAME}"
+              ENCRYPTION_KEY="$(printf %s "${ENCRYPTION_KEY}" | sha256sum | cut -c1-64)"
+              CLICKHOUSE_URL="http://${CLICKHOUSE_HOST}:8123"
+              CLICKHOUSE_MIGRATION_URL="clickhouse://${CLICKHOUSE_HOST}:9000"
+              LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000"
+              LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT="http://${MINIO_HOST}:9000";
               exec dumb-init -- ./worker/entrypoint.sh node worker/dist/index.js
             envVars:
               - key: PORT
@@ -258,7 +251,7 @@ projects:
               url: cgr.dev/chainguard/minio
             dockerCommand: >-
               /bin/sh -c mkdir -p /data/langfuse &&
-              exec minio server --address ":9000" --console-address ":9001" /data
+              exec minio server --address :9000 --console-address :9001 /data
             healthCheckPath: /minio/health/live
             envVars:
               - key: PORT
