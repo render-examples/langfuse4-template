@@ -1,6 +1,6 @@
 # Langfuse v4 profile on Render
 
-This repository contains a Render Blueprint for a small self-hosted Langfuse v4 deployment. Do not use this profile for production workloads.
+This repository contains a Render Blueprint for a self-hosted Langfuse v4 deployment. It creates separate Render resources for the Langfuse web service, worker, and data stores. This architecture can support production workloads when you select plans, storage, scaling, backups, and recovery controls that match your workload.
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/renderinc/langfuse-blueprint)
 
@@ -45,11 +45,35 @@ The Blueprint has these Render-specific changes:
 - `CLICKHOUSE_DB` is not set. Setting it starts an image initialization path that cannot stop its temporary ClickHouse process on Render.
 - Render service references and private networking replace Docker Compose service discovery and port bindings.
 
-## Capacity and cost
+## Production sizing
 
-This profile uses small instance types and disks for functional tests. The web and worker each have a 1.5 GB Node.js heap limit. Review the resource cost before you apply the Blueprint.
+The Blueprint defaults are a cost-conscious starting point. Increase them before you send production traffic. The following baseline maps the [Langfuse production sizing guidance](https://langfuse.com/self-hosting/configuration/scaling) to [Render instance types](https://render.com/docs/compute-plans):
 
-ClickHouse and MinIO use one instance each. Render services with a persistent disk cannot scale to more than one instance. This Blueprint does not provide high availability for these two services.
+| Resource | Blueprint default | Suggested production baseline |
+| --- | --- | --- |
+| Langfuse web | `standard` (1 CPU, 2 GB RAM) | `pro` (2 CPU, 4 GB RAM) |
+| Langfuse worker | `standard` (1 CPU, 2 GB RAM) | `pro` (2 CPU, 4 GB RAM) |
+| PostgreSQL | `basic-1gb`, 5 GB storage | `pro-8gb` (2 CPU, 8 GB RAM) with at least 20 GB storage |
+| Render Key Value | `starter` (256 MB RAM) | `pro` (5 GB RAM) |
+| ClickHouse | `pro` (2 CPU, 4 GB RAM), 10 GB disk | `pro_plus` (4 CPU, 8 GB RAM) with at least a 100 GB disk |
+| MinIO | `starter` (0.5 CPU, 512 MB RAM), 10 GB disk | `pro` (2 CPU, 4 GB RAM) with at least a 100 GB disk |
+
+These values are an initial production baseline, not a capacity guarantee. Event volume, retention, media size, query patterns, and concurrent users determine the resources that you need. Review current [Render pricing](https://render.com/pricing) before you apply the Blueprint.
+
+When you move the web and worker services to `pro`, increase `NODE_OPTIONS` from `--max-old-space-size=1536` to `--max-old-space-size=3072`. This setting leaves memory for the Node.js runtime outside the JavaScript heap.
+
+Monitor CPU, memory, disk use, request latency, worker queue depth, and database connections after deployment. Add web or worker instances when sustained CPU use exceeds 50 percent. Increase ClickHouse memory first when analytical queries become slow. Increase disks before they reach 80 percent use because Render disks cannot be reduced after expansion.
+
+## Production availability and recovery
+
+The production baseline above provides production-scale capacity, but it does not make every component highly available:
+
+- Render Postgres `pro-8gb` supports high availability and point-in-time recovery. Confirm that both features meet your recovery objectives.
+- Render Key Value uses `noeviction` and journal-and-snapshot persistence. Monitor available memory because queue writes fail when the instance is full.
+- ClickHouse and MinIO each use one Render service with one persistent disk. Render services with a persistent disk cannot scale to multiple instances, and deploys require downtime.
+- For higher availability, use a replicated or managed ClickHouse deployment and managed S3-compatible object storage instead of the single-instance ClickHouse and MinIO services in this Blueprint.
+
+Define retention policies, backup schedules, restore tests, monitoring alerts, and recovery objectives before you send production traffic.
 
 ## Validate
 
