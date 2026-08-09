@@ -4,7 +4,7 @@ This repository contains a Render Blueprint for a small self-hosted Langfuse v4 
 
 ## What the Blueprint creates
 
-The Blueprint creates a new Render project named `langfuse`. It adds an unprotected `production` environment with these resources:
+The Blueprint creates a new Render project named `langfuse-4`. It adds an unprotected `production` environment with these resources:
 
 - A `standard` Langfuse v4 web service
 - A `standard` Langfuse v4 background worker
