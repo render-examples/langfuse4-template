@@ -1,4 +1,4 @@
-# Langfuse v4 profile on Render
+# Langfuse v4 on Render
 
 This repository contains a Render Blueprint for a self-hosted Langfuse v4 deployment. It creates separate Render resources for the Langfuse web service, worker, and data stores. This architecture can support production workloads when you select plans, storage, scaling, backups, and recovery controls that match your workload.
 
