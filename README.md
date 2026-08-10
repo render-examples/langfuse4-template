@@ -2,7 +2,7 @@
 
 This repository contains a Render Blueprint for a self-hosted Langfuse v4 deployment. It creates separate Render resources for the Langfuse web service, worker, and data stores. This architecture can support production workloads when you select plans, storage, scaling, backups, and recovery controls that match your workload.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/render-examples/langfuse4-template)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy-template/api/github/start?template_repo=langfuse4-template)
 
 ## What the Blueprint creates
 
