@@ -227,6 +227,19 @@ projects:
             plan: pro
             image:
               url: docker.io/clickhouse/clickhouse-server:25.12
+            dockerCommand: >-
+              /bin/sh -c 'set -e;
+              printf "%s\n"
+              "<clickhouse>"
+              "  <trace_log remove=\"1\"/>"
+              "  <text_log remove=\"1\"/>"
+              "  <opentelemetry_span_log remove=\"1\"/>"
+              "  <asynchronous_metric_log remove=\"1\"/>"
+              "  <metric_log remove=\"1\"/>"
+              "  <latency_log remove=\"1\"/>"
+              "</clickhouse>"
+              > /etc/clickhouse-server/config.d/disable-system-logs.xml;
+              exec /entrypoint.sh'
             envVars:
               - key: PORT
                 value: 8123
