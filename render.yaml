@@ -227,8 +227,9 @@ projects:
             plan: pro
             image:
               url: docker.io/clickhouse/clickhouse-server:25.12
+            # Render passes all text after /bin/sh -c as one argument.
             dockerCommand: >-
-              /bin/sh -c 'set -e;
+              /bin/sh -c set -e;
               printf "%s\n"
               "<clickhouse>"
               "  <trace_log remove=\"1\"/>"
@@ -239,7 +240,7 @@ projects:
               "  <latency_log remove=\"1\"/>"
               "</clickhouse>"
               > /etc/clickhouse-server/config.d/disable-system-logs.xml;
-              exec /entrypoint.sh'
+              exec /entrypoint.sh
             envVars:
               - key: PORT
                 value: 8123
